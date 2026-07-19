@@ -12,12 +12,14 @@ import {
   DEFAULT_RULES,
   JournalEntry,
   Rule,
+  TradeResult,
   loadJournal,
   loadPairs,
   loadRules,
   savePairs,
   saveJournal,
   saveRules,
+  setJournalEntryResult,
 } from "@/lib/storage";
 
 export default function Home() {
@@ -138,6 +140,11 @@ export default function Home() {
     const next = journal.filter((e) => e.id !== id);
     setJournal(next);
     saveJournal(next);
+  }
+
+  function setResult(id: string, result: TradeResult | null) {
+    const next = setJournalEntryResult(journal, id, result);
+    setJournal(next);
   }
 
   if (!hydrated) {
@@ -301,7 +308,11 @@ export default function Home() {
                 <div className="mb-4 font-mono text-[11px] uppercase tracking-widest text-mist">
                   Riwayat Checklist
                 </div>
-                <JournalList entries={journal} onDelete={deleteJournalEntry} />
+                <JournalList
+                  entries={journal}
+                  onDelete={deleteJournalEntry}
+                  onSetResult={setResult}
+                />
               </div>
             )}
           </div>
