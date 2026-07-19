@@ -102,7 +102,7 @@ Kamu akan menerima ringkasan data harga live. Evaluasi kelima rule itu berdasark
 }`;
 
     const aiRes = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
       {
         method: "POST",
         headers: {
