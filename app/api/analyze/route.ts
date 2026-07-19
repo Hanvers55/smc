@@ -112,7 +112,12 @@ Kamu akan menerima ringkasan data harga live. Evaluasi kelima rule itu berdasark
         body: JSON.stringify({
           system_instruction: { parts: [{ text: systemPrompt }] },
           contents: [{ role: "user", parts: [{ text: dataSummary }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 1000 },
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 2048,
+            responseMimeType: "application/json",
+            thinkingConfig: { thinkingBudget: 0 },
+          },
         }),
       }
     );
@@ -131,7 +136,22 @@ Kamu akan menerima ringkasan data harga live. Evaluasi kelima rule itu berdasark
     try {
       parsed = JSON.parse(cleaned);
     } catch {
-      throw new Error("Gagal membaca hasil analisa AI (format tidak sesuai)");
+      // Fallback: coba ambil substring dari "{" pertama sampai "}" terakhir,
+      // jaga-jaga kalau model menambahkan teks lain di luar JSON.
+      const start = cleaned.indexOf("{");
+      const end = cleaned.lastIndexOf("}");
+      if (start !== -1 && end !== -1 && end > start) {
+        try {
+          parsed = JSON.parse(cleaned.slice(start, end + 1));
+        } catch {
+          // masih gagal, lempar error dengan potongan raw text untuk debugging
+        }
+      }
+      if (!parsed) {
+        throw new Error(
+          `Gagal membaca hasil analisa AI (format tidak sesuai). Raw: ${cleaned.slice(0, 300)}`
+        );
+      }
     }
 
     return NextResponse.json({
